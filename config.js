@@ -29,7 +29,7 @@ function (Settings) {
      *  +elasticsearch: {server: "http://localhost:9200", withCredentials: true}+
      *
      */
-    elasticsearch:"http://"+location.hostname+location.pathname.replace("index.html","").replace(/\/$/,''),
+    elasticsearch:"http://"+location.hostname+":"+location.port+location.pathname.replace("index.html","").replace(/\/$/,''),
 
     /** @scratch /configuration/config.js/5
      *
