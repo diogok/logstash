@@ -19,13 +19,13 @@ RUN cd /root && \
     tar -xzf kibana-3.0.1.tar.gz && \
     mv kibana-3.0.1 /var/www && \
     rm kibana-3.0.1.tar.gz 
-ADD config.js /var/www/config.js
 
 # Install nginx and supervisor
 RUN apt-get install -y nginx supervisor
 RUN mkdir /var/log/supervisord 
 ADD nginx.conf /etc/nginx/nginx.conf
 ADD supervisor.conf /etc/supervisor/conf.d/logstash.conf
+ADD config.js /var/www/config.js
 
 # Expose ElasticSearch, SYSLOG and Nginx/Kibana 
 EXPOSE 9200
