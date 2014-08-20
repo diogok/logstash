@@ -27,8 +27,7 @@ ADD nginx.conf /etc/nginx/nginx.conf
 ADD supervisor.conf /etc/supervisor/conf.d/logstash.conf
 ADD config.js /var/www/config.js
 
-# Expose ElasticSearch, SYSLOG and Nginx/Kibana 
-EXPOSE 9200
+# Expose SYSLOG and Nginx/Kibana 
 EXPOSE 9514
 EXPOSE 80
 
