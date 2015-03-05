@@ -4,7 +4,7 @@ Contains a local ElasticSearch, Logstash with Syslog input and Kibana with prope
 
 Run it:
 
-    $ docker run -d -P --name logstash -t diogok/logstash
+    $ docker run -d -P --name logstash diogok/logstash
 
 See where it is binding the syslog port:
 
@@ -21,6 +21,10 @@ See where it is running the web:
 Log to the container:
 
     $ logger "Hello"
+
+Integrate with logspout to log all docker containers stdout and stderr to logstash:
+
+    $ docker run -d --name logspout --link logstash:logastash -v=/var/run/docker.sock:/tmp/docker.sock progrium/logspout syslog://logstash:9514
 
 License: MIT.
 
