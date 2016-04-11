@@ -1,50 +1,28 @@
-FROM ubuntu:14.04
+FROM diogok/elasticsearch
 
-RUN apt-get update && apt-get upgrade -y 
+WORKDIR /opt
 
-# Install java 8
-RUN echo "deb http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" | tee /etc/apt/sources.list.d/webupd8team-java.list && \
-    echo "deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" | tee -a /etc/apt/sources.list.d/webupd8team-java.list && \
-    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys EEA14886 && \
-    apt-get update && \
-    echo debconf shared/accepted-oracle-license-v1-1 select true | debconf-set-selections && \
-    echo debconf shared/accepted-oracle-license-v1-1 seen true | debconf-set-selections && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y --force-yes oracle-java8-installer oracle-java8-set-default 
+RUN curl -L 'https://download.elastic.co/kibana/kibana/kibana-4.5.0-linux-x64.tar.gz' -o kibana.tar.gz && \
+    tar -xvf kibana.tar.gz && \
+    mv kibana-4.5.0-linux-x64 kibana && \
+    rm kibana.tar.gz
 
-# Install Logstash
-RUN cd /root && \
-    wget https://download.elasticsearch.org/logstash/logstash/logstash-1.4.2.tar.gz --no-check-certificate && \
-    tar -xzf logstash-1.4.2.tar.gz && \
-    rm -rf logstash-1.4.2.tar.gz 
+RUN curl https://download.elastic.co/logstash/logstash/logstash-all-plugins-2.3.1.tar.gz \
+    --insecure -o logstash-2.3.1.tar.gz && \ 
+    tar -xvf logstash-2.3.1.tar.gz && \
+    mv logstash-2.3.1 logstash && \
+    rm logstash-2.3.1.tar.gz
 
-# Install ElasticSearch
-RUN cd /root && \
-    wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.4.0.tar.gz && \
-    tar -xzf elasticsearch-1.4.0.tar.gz && \
-    rm elasticsearch-1.4.0.tar.gz
+RUN sed -i -e 's/docker_es/logstash_es/' /usr/share/elasticsearch/config/elasticsearch.yml
 
-# Install Kibana
-RUN cd /root && \
-    wget https://download.elasticsearch.org/kibana/kibana/kibana-3.1.2.tar.gz && \
-    tar -xzf kibana-3.1.2.tar.gz && \
-    mv kibana-3.1.2 /var/www && \
-    rm kibana-3.1.2.tar.gz 
-
-# Install nginx and supervisor
-RUN apt-get install -y nginx supervisor
-RUN mkdir /var/log/supervisord 
-
-# Add Config files
-ADD nginx.conf /etc/nginx/nginx.conf
-ADD supervisor.conf /etc/supervisor/conf.d/logstash.conf
-ADD config.js /var/www/config.js
-ADD logstash.conf /root/logstash-1.4.2/logstash.conf
-
-# Expose SYSLOG, supervisord and Nginx/Kibana 
+EXPOSE 5601
 EXPOSE 9514
-EXPOSE 9001
-EXPOSE 80
+EXPOSE 9200
+EXPOSE 12201
 
-# Start supervisor
-CMD ["supervisord"]
+COPY kibana.yml /opt/kibana/config/kibana.yml
+COPY logstash.conf /opt/logstash.conf
+
+COPY start.sh /opt/start.sh
+CMD ["/opt/start.sh"]
 

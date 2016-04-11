@@ -6,25 +6,23 @@ Run it:
 
     $ docker run -d -P --name logstash diogok/logstash
 
-See where it is binding the syslog port:
+Check the ports:
 
-    $ LOGSTASH=$(docker inspect --format='localhost:{{(index (index .NetworkSettings.Ports "9514/tcp") 0).HostPort}}' logstash)
+    $ docker ps
 
-Configure your rsyslog to log to it:
+Access kibana at port [http://localhost:5601](http://localhost:5601).
 
-    $ echo "*.* @@$LOGSTASH" > /etc/rsyslog.d/50-logstash.conf
+### Syslog/Rsyslog
 
-See where it is running the web:
-
-    $ docker inspect --format='http://localhost:{{(index (index .NetworkSettings.Ports "80/tcp") 0).HostPort}}' logstash
-  
 Log to the container:
 
-    $ logger "Hello"
+    $ logger -d -n 127.0.0.1 -P 9514 "Hello"
 
-Integrate with logspout to log all docker containers stdout and stderr to logstash:
+### Gelf and docker logs
 
-    $ docker run -d --name logspout --link logstash:logastash -v=/var/run/docker.sock:/tmp/docker.sock progrium/logspout syslog://logstash:9514
+Run your docker logs to logstash:
+
+    docker run --log-driver=gelf --log-opt gelf-address=udp://127.0.0.1:12201 your/container
 
 License: MIT.
 

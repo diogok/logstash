@@ -1,0 +1,10 @@
+version: "2"
+services:
+  logstash:
+    build: .
+    ports:
+      - 5601:5601
+      - 9514:9514
+      - 9514:9514/udp
+      - 12201:12201/udp
+      - 9200:9200
